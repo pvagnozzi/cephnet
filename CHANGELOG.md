@@ -5,7 +5,19 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and [Conventional Commits](https://www.conventionalcommits.org/).
 
 ---
+## 🏷️ [0.1.0-11] — 2026-04-19
+
+### ✨ Features
+
+- Add full training pipeline to release workflow (#4) ([`c733533`](https://github.com/pvagnozzi/cephnet/commit/c73353379f48be0db42273cdb5a103d147e97a4c)) — *Piergiorgio Vagnozzi*
+
+
 ## 🏷️ [0.1.0-10] — 2026-04-19
+
+### 🏠 Chores
+
+- Bump version to v0.1.0-10 [skip ci] ([`53904d1`](https://github.com/pvagnozzi/cephnet/commit/53904d12e2460c6de959e07afde1f151f0be50ce)) — *github-actions[bot]*
+
 
 ### 🐛 Bug Fixes
 

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "cephnet"
-version = "0.1.0-10"
+version = "0.1.0-11"
 description = "Cephalometric landmark detection — training subsystem"
 authors = [{name = "Piergiorgio Vagnozzi", email = "piergiorgio.vagnozzi@example.com"}]
 readme = "README.md"
