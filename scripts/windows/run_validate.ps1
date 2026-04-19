@@ -32,7 +32,7 @@ docker compose `
     -f $ComposeFile `
     --project-directory $RepoRoot `
     run --rm trainer `
-    python scripts/python/validate_model.py @CmdArgs
+    uv run python scripts/python/validate_model.py @CmdArgs
 
 exit $LASTEXITCODE
 

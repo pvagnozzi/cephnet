@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import abc
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import torch
@@ -16,7 +17,7 @@ from PIL import Image
 from torch.utils.data import Dataset
 
 
-class BaseDataset(Dataset, abc.ABC):
+class BaseDataset(Dataset[dict[str, Any]], abc.ABC):
     """Abstract base dataset for cephalometric landmark detection."""
 
     def __init__(
@@ -24,13 +25,14 @@ class BaseDataset(Dataset, abc.ABC):
         root: Path,
         split: str,  # "train", "val", "test"
         image_size: tuple[int, int] = (512, 512),
-        transform: object | None = None,
+        transform: Any | None = None,
     ) -> None:
         self.root = Path(root)
         self.split = split
         self.image_size = image_size
         self.transform = transform
-        self._samples: list[dict] = []  # {"image_path": Path, "landmarks": np.ndarray (N,2)}
+        # {"image_path": Path, "landmarks": np.ndarray (N,2)}
+        self._samples: list[dict[str, Any]] = []
         self._load_samples()
 
     @abc.abstractmethod
@@ -50,14 +52,14 @@ class BaseDataset(Dataset, abc.ABC):
     def __len__(self) -> int:
         return len(self._samples)
 
-    def __getitem__(self, idx: int) -> dict[str, torch.Tensor]:
+    def __getitem__(self, idx: int) -> dict[str, Any]:
         sample = self._samples[idx]
         image = Image.open(sample["image_path"]).convert("RGB")
         landmarks = np.array(sample["landmarks"], dtype=np.float32)  # (N, 2) pixel coords
 
         # Resize image and scale landmarks proportionally
         orig_w, orig_h = image.size
-        image = image.resize(self.image_size, Image.BILINEAR)
+        image = image.resize(self.image_size, Image.Resampling.BILINEAR)
         scale_x = self.image_size[0] / orig_w
         scale_y = self.image_size[1] / orig_h
         landmarks[:, 0] *= scale_x
@@ -80,7 +82,7 @@ class BaseDataset(Dataset, abc.ABC):
         landmarks_t = torch.from_numpy(landmarks)
 
         return {
-            "image": image_t,        # (3, H, W)
+            "image": image_t,  # (3, H, W)
             "landmarks": landmarks_t,  # (N, 2) pixel coords in resized image
             "image_path": str(sample["image_path"]),
         }

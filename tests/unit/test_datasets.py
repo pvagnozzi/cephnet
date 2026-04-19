@@ -2,8 +2,8 @@
 # MIT License
 # Author: Piergiorgio Vagnozzi
 # Created: 2026-04-18
-# Last modified: 2026-04-18
-# Description: Tests for ISBI2015Dataset and dataset factory using synthetic data
+# Last modified: 2026-04-19
+# Description: Tests for ISBI2015Dataset, AarizDataset, and dataset factory
 
 from __future__ import annotations
 
@@ -12,6 +12,7 @@ from pathlib import Path
 import pytest
 import torch
 
+from cephnet.datasets.aariz import AarizDataset
 from cephnet.datasets.factory import get_dataset
 from cephnet.datasets.isbi2015 import ISBI2015Dataset
 
@@ -83,3 +84,49 @@ def test_factory_isbi2015(tmp_path: Path) -> None:
     )
     assert isinstance(ds, ISBI2015Dataset)
     assert len(ds) > 0
+
+
+# ---------------------------------------------------------------------------
+# AarizDataset — verification-only dataset
+# ---------------------------------------------------------------------------
+
+def test_aariz_synthetic_test_has_samples(tmp_path: Path) -> None:
+    """Aariz test split has synthetic samples when data is absent."""
+    ds = AarizDataset(root=tmp_path / "nonexistent", split="test")
+    assert len(ds) == 50
+
+
+def test_aariz_synthetic_train_is_empty(tmp_path: Path) -> None:
+    """Aariz train split is empty — Aariz is verification-only (train_ratio=0)."""
+    ds = AarizDataset(root=tmp_path / "nonexistent", split="train")
+    assert len(ds) == 0
+
+
+def test_aariz_synthetic_val_is_empty(tmp_path: Path) -> None:
+    """Aariz val split is empty — Aariz is verification-only (val_ratio=0)."""
+    ds = AarizDataset(root=tmp_path / "nonexistent", split="val")
+    assert len(ds) == 0
+
+
+def test_aariz_getitem_shape(tmp_path: Path) -> None:
+    """AarizDataset __getitem__ returns correct tensor shapes."""
+    ds = AarizDataset(root=tmp_path / "nonexistent", split="test", image_size=_IMG_SIZE)
+    item = ds[0]
+    assert item["image"].shape == (3, _IMG_SIZE[1], _IMG_SIZE[0])
+    assert item["landmarks"].shape == (_N_LM, 2)
+    assert item["image"].dtype == torch.float32
+    assert item["landmarks"].dtype == torch.float32
+
+
+def test_aariz_and_isbi2015_use_different_roots(tmp_path: Path) -> None:
+    """ISBI2015 (training) and Aariz (verification) use distinct dataset roots."""
+    isbi = ISBI2015Dataset(root=tmp_path / "isbi2015", split="train")
+    aariz = AarizDataset(root=tmp_path / "aariz", split="test")
+    assert isbi.root != aariz.root, "Training and verification datasets must have separate roots"
+
+
+def test_factory_aariz(tmp_path: Path) -> None:
+    """get_dataset('aariz', ...) returns an AarizDataset instance with test split."""
+    ds = get_dataset("aariz", root=tmp_path / "nonexistent", split="test")
+    assert isinstance(ds, AarizDataset)
+    assert len(ds) == 50

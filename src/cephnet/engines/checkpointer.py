@@ -103,9 +103,7 @@ class Checkpointer:
         if not checkpoint_path.exists():
             raise FileNotFoundError(f"Checkpoint not found: {checkpoint_path}")
 
-        state: dict[str, Any] = torch.load(
-            checkpoint_path, map_location="cpu", weights_only=True
-        )
+        state: dict[str, Any] = torch.load(checkpoint_path, map_location="cpu", weights_only=True)
         model.load_state_dict(state["model_state_dict"], strict=strict)
         if optimizer is not None and "optimizer_state_dict" in state:
             optimizer.load_state_dict(state["optimizer_state_dict"])
@@ -126,8 +124,6 @@ class Checkpointer:
         last_path = self.checkpoint_dir / f"{self.experiment_name}_last.pt"
         if not last_path.exists():
             return None
-        state: dict[str, Any] = torch.load(
-            last_path, map_location="cpu", weights_only=False
-        )
+        state: dict[str, Any] = torch.load(last_path, map_location="cpu", weights_only=False)
         logger.debug("📂 Latest checkpoint loaded ← %s", last_path)
         return state

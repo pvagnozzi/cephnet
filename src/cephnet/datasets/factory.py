@@ -45,8 +45,6 @@ def get_dataset(
         ValueError: When ``name`` is not registered.
     """
     if name not in _REGISTRY:
-        raise ValueError(
-            f"Unknown dataset: {name!r}. Available: {sorted(_REGISTRY.keys())}"
-        )
+        raise ValueError(f"Unknown dataset: {name!r}. Available: {sorted(_REGISTRY.keys())}")
     cls = _REGISTRY[name]
     return cls(root=root, split=split, image_size=image_size, transform=transform, **kwargs)

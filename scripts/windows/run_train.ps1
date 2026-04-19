@@ -36,7 +36,7 @@ docker compose `
     -f $ComposeFile `
     --project-directory $RepoRoot `
     run --rm trainer `
-    python scripts/python/train_model.py @CmdArgs
+    uv run python scripts/python/train_model.py @CmdArgs
 
 exit $LASTEXITCODE
 

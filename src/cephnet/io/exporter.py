@@ -63,7 +63,7 @@ def export_to_onnx(
     with torch.no_grad():
         torch.onnx.export(
             model,
-            dummy_input,
+            (dummy_input,),
             str(out_path),
             export_params=True,
             opset_version=opset_version,
@@ -73,6 +73,6 @@ def export_to_onnx(
             dynamic_axes=dynamic_axes,
         )
 
-    size_mb = out_path.stat().st_size / (1024 ** 2)
+    size_mb = out_path.stat().st_size / (1024**2)
     logger.info("✅ ONNX export complete: %s (%.1f MB)", out_path.name, size_mb)
     return out_path

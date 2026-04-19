@@ -7,8 +7,6 @@
 
 from __future__ import annotations
 
-import hashlib
-import io
 import logging
 import shutil
 import struct
@@ -34,19 +32,33 @@ _ISBI2015_SOURCES: list[dict[str, Any]] = [
 
 _AARIZ_SOURCES: list[dict[str, Any]] = [
     {
-        "url": "https://zenodo.org/record/8109511/files/aariz_dataset.zip",
+        "url": "https://github.com/manwaarkhd/aariz-cephalometric-dataset/archive/refs/heads/main.zip",
         "kind": "zip",
-        "description": "Aariz cephalometric dataset (Zenodo)",
+        "description": "Aariz cephalometric dataset (GitHub — official repository)",
     },
 ]
 
 # Standard ISBI 2015 landmark names (19 landmarks)
 ISBI2015_LANDMARK_NAMES: list[str] = [
-    "sella", "nasion", "orbitale", "porion", "subspinale",
-    "supramentale", "pogonion", "menton", "gnathion", "gonion",
-    "incision_inferius", "incision_superius", "upper_lip", "lower_lip",
-    "subnasale", "soft_tissue_pogonion", "posterior_nasal_spine",
-    "anterior_nasal_spine", "articulare",
+    "sella",
+    "nasion",
+    "orbitale",
+    "porion",
+    "subspinale",
+    "supramentale",
+    "pogonion",
+    "menton",
+    "gnathion",
+    "gonion",
+    "incision_inferius",
+    "incision_superius",
+    "upper_lip",
+    "lower_lip",
+    "subnasale",
+    "soft_tissue_pogonion",
+    "posterior_nasal_spine",
+    "anterior_nasal_spine",
+    "articulare",
 ]
 
 # Standard Aariz landmark names (19 landmarks, same canonical set)
@@ -65,7 +77,9 @@ def _try_download_zip(url: str, dest_dir: Path) -> Path | None:
         zip_path = dest_dir / "_download.zip"
         logger.info("⬇️  Downloading from %s …", url)
         urllib.request.urlretrieve(url, zip_path)  # noqa: S310 (trusted academic sources)
-        logger.info("✅ Download complete: %s (%.1f MB)", zip_path.name, zip_path.stat().st_size / 1e6)
+        logger.info(  # noqa: E501
+            "✅ Download complete: %s (%.1f MB)", zip_path.name, zip_path.stat().st_size / 1e6
+        )
         return zip_path
     except Exception as exc:
         logger.warning("⚠️  Download failed: %s", exc)
@@ -88,6 +102,7 @@ def _extract_zip(zip_path: Path, dest_dir: Path) -> bool:
 # Minimal PNG writer (no external deps at prepare time)
 # ---------------------------------------------------------------------------
 
+
 def _write_png(path: Path, array: np.ndarray) -> None:
     """Write an 8-bit grayscale or RGB PNG to *path* without PIL/cv2."""
     import zlib
@@ -96,7 +111,6 @@ def _write_png(path: Path, array: np.ndarray) -> None:
     h, w = array.shape[:2]
     is_gray = array.ndim == 2
     color_type = 0 if is_gray else 2  # grayscale or RGB
-    channels = 1 if is_gray else 3
 
     def chunk(name: bytes, data: bytes) -> bytes:
         c = name + data
@@ -186,28 +200,31 @@ def _canonical_landmark_positions(
         (-0.10, -0.20),  # sella
         (-0.35, -0.38),  # nasion
         (-0.55, -0.10),  # orbitale
-        (0.65, -0.05),   # porion
-        (-0.48, 0.08),   # subspinale
-        (-0.42, 0.22),   # supramentale
-        (-0.52, 0.36),   # pogonion
-        (-0.18, 0.62),   # menton
-        (-0.38, 0.58),   # gnathion
-        (0.45, 0.45),    # gonion
-        (-0.38, 0.18),   # incision_inferius
-        (-0.36, 0.12),   # incision_superius
-        (-0.44, 0.00),   # upper_lip
-        (-0.44, 0.10),   # lower_lip
-        (-0.48, 0.00),   # subnasale
-        (-0.55, 0.38),   # soft_tissue_pogonion
-        (0.22, -0.05),   # posterior_nasal_spine
+        (0.65, -0.05),  # porion
+        (-0.48, 0.08),  # subspinale
+        (-0.42, 0.22),  # supramentale
+        (-0.52, 0.36),  # pogonion
+        (-0.18, 0.62),  # menton
+        (-0.38, 0.58),  # gnathion
+        (0.45, 0.45),  # gonion
+        (-0.38, 0.18),  # incision_inferius
+        (-0.36, 0.12),  # incision_superius
+        (-0.44, 0.00),  # upper_lip
+        (-0.44, 0.10),  # lower_lip
+        (-0.48, 0.00),  # subnasale
+        (-0.55, 0.38),  # soft_tissue_pogonion
+        (0.22, -0.05),  # posterior_nasal_spine
         (-0.38, -0.05),  # anterior_nasal_spine
-        (0.32, -0.15),   # articulare
+        (0.32, -0.15),  # articulare
     ]
 
-    pts = np.array([
-        [cx + dx * rx + rng.uniform(-8, 8), cy + dy * ry + rng.uniform(-8, 8)]
-        for dx, dy in relative
-    ], dtype=np.float32)
+    pts = np.array(
+        [
+            [cx + dx * rx + rng.uniform(-8, 8), cy + dy * ry + rng.uniform(-8, 8)]
+            for dx, dy in relative
+        ],
+        dtype=np.float32,
+    )
 
     # Clamp to valid range
     pts[:, 0] = np.clip(pts[:, 0], 20, width - 20)
@@ -249,7 +266,7 @@ def generate_synthetic_dataset(
     rng = np.random.default_rng(seed)
     splits = {"train": n_train, "val": n_val, "test": n_test}
 
-    rows: list[dict] = []
+    rows: list[dict[str, Any]] = []
     for split, n in splits.items():
         img_dir = root / "images" / split
         img_dir.mkdir(parents=True, exist_ok=True)
@@ -260,7 +277,7 @@ def generate_synthetic_dataset(
             _write_png(img_path, img_array)
 
             pts = _canonical_landmark_positions(rng, W, H)
-            row: dict = {"image_id": img_id, "split": split}
+            row: dict[str, Any] = {"image_id": img_id, "split": split}
             for j, (px, py) in enumerate(pts):
                 row[f"lm_{j}_x"] = round(float(px), 2)
                 row[f"lm_{j}_y"] = round(float(py), 2)
@@ -280,7 +297,9 @@ class DatasetPreparer:
     def __init__(self, dataset_name: str, root: Path, raw_root: Path | None = None) -> None:
         self.dataset_name = dataset_name.lower()
         self.root = Path(root)
-        self.raw_root = Path(raw_root) if raw_root else self.root.parent.parent / "raw" / dataset_name
+        self.raw_root = (
+            Path(raw_root) if raw_root else self.root.parent.parent / "raw" / dataset_name
+        )
 
     def prepare(
         self,
@@ -297,7 +316,12 @@ class DatasetPreparer:
         ann_path = self.root / "annotations" / "landmarks.csv"
         if ann_path.exists() and not force:
             n_rows = len(pd.read_csv(ann_path))
-            logger.info("✅ Dataset '%s' already prepared (%d samples) at %s", self.dataset_name, n_rows, self.root)
+            logger.info(  # noqa: E501
+                "✅ Dataset '%s' already prepared (%d samples) at %s",
+                self.dataset_name,
+                n_rows,
+                self.root,
+            )
             return
 
         # 2. Try downloading from each source
@@ -307,11 +331,11 @@ class DatasetPreparer:
             zip_path = _try_download_zip(source["url"], self.raw_root)
             if zip_path is None:
                 continue
-            if _extract_zip(zip_path, self.raw_root):
-                # Attempt to locate and reformat into expected layout
-                if self._reformat_downloaded(self.raw_root, image_size):
-                    downloaded = True
-                    break
+            if _extract_zip(zip_path, self.raw_root) and self._reformat_downloaded(
+                self.raw_root, image_size
+            ):  # noqa: E501
+                downloaded = True
+                break
             logger.warning("⚠️  Could not use source '%s', trying next…", source["description"])
 
         # 3. Fall back to synthetic generation
@@ -345,7 +369,11 @@ class DatasetPreparer:
         """
         try:
             # Walk and look for PNG/BMP/TIFF images + annotation files
-            images = list(src_dir.rglob("*.png")) + list(src_dir.rglob("*.bmp")) + list(src_dir.rglob("*.tiff"))
+            images = (
+                list(src_dir.rglob("*.png"))
+                + list(src_dir.rglob("*.bmp"))
+                + list(src_dir.rglob("*.tiff"))
+            )
             txt_files = list(src_dir.rglob("*.txt"))
             if not images:
                 logger.warning("⚠️  No images found in downloaded archive — cannot reformat")
@@ -360,11 +388,11 @@ class DatasetPreparer:
                 shutil.copy2(img, out_img_dir / f"train_{i:04d}{img.suffix}")
 
             # Parse landmark text files if they look like coordinate lists
-            rows: list[dict] = []
+            rows: list[dict[str, Any]] = []
             for i, img in enumerate(images):
                 stem = img.stem
                 txt_match = next((t for t in txt_files if t.stem == stem), None)
-                row: dict = {"image_id": f"train_{i:04d}", "split": "train"}
+                row: dict[str, Any] = {"image_id": f"train_{i:04d}", "split": "train"}
                 if txt_match:
                     coords = txt_match.read_text().strip().split()
                     pts = [float(c) for c in coords]

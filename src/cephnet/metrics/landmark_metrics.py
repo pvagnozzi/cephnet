@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
+from typing import cast
 
 import numpy as np
 
@@ -69,7 +70,7 @@ def compute_per_landmark_mre(
         ``(N_landmarks,)`` array of per-landmark mean errors in mm.
     """
     distances = np.linalg.norm(predictions - targets, axis=-1)  # (N_samples, N_landmarks)
-    return np.mean(distances, axis=0) * pixel_spacing_mm
+    return cast(np.ndarray, np.mean(distances, axis=0) * pixel_spacing_mm)
 
 
 @dataclass

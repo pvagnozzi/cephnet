@@ -11,7 +11,6 @@ import json
 import logging
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
@@ -79,10 +78,12 @@ class CrossDatasetEvaluator:
         # Write per-landmark CSV if names provided
         if landmark_names:
             table_path = self.report_dir / f"{self.experiment_name}_{dataset_name}_per_landmark.csv"
-            df = pd.DataFrame({
-                "landmark": landmark_names,
-                "mre_mm": metrics.per_landmark_mre.tolist(),
-            }).sort_values("mre_mm")
+            df = pd.DataFrame(
+                {
+                    "landmark": landmark_names,
+                    "mre_mm": metrics.per_landmark_mre.tolist(),
+                }
+            ).sort_values("mre_mm")
             df.to_csv(table_path, index=False)
             logger.info("📋 Per-landmark table → %s", table_path)
 

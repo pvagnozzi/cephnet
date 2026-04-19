@@ -7,6 +7,8 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 import torch
 import torch.nn as nn
 
@@ -48,7 +50,7 @@ class RegressionModel(nn.Module):
         features = self.encoder(x)
         pooled = self.pool(features)
         out = self.head(pooled)
-        return out.view(-1, self.config.n_landmarks, 2)  # (B, N, 2)
+        return cast(torch.Tensor, out.view(-1, self.config.n_landmarks, 2))  # (B, N, 2)
 
 
 def build_model(config: HeatmapModelConfig | RegressionModelConfig) -> nn.Module:

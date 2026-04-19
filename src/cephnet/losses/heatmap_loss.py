@@ -50,10 +50,7 @@ def generate_gaussian_heatmaps(
     cx = scaled[..., 0].view(B, N, 1, 1)
     cy = scaled[..., 1].view(B, N, 1, 1)
 
-    heatmaps = torch.exp(
-        -((x_range - cx) ** 2 + (y_range - cy) ** 2) / (2 * sigma**2)
-    )
-    return heatmaps  # (B, N, H, W)
+    return torch.exp(-((x_range - cx) ** 2 + (y_range - cy) ** 2) / (2 * sigma**2))
 
 
 class HeatmapLoss(nn.Module):
