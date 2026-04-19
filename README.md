@@ -5,9 +5,12 @@
 A Docker-first, reproducible training pipeline for cephalometric landmark detection.
 All training logic runs inside Docker containers; OS wrapper scripts only call Docker.
 
+[![Version](https://img.shields.io/github/v/release/pvagnozzi/cephnet?label=version&color=brightgreen&logo=github)](https://github.com/pvagnozzi/cephnet/releases/latest)
+[![CI](https://github.com/pvagnozzi/cephnet/actions/workflows/ci.yml/badge.svg)](https://github.com/pvagnozzi/cephnet/actions/workflows/ci.yml)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
+[![GitFlow](https://img.shields.io/badge/branching-GitFlow-orange.svg)](https://nvie.com/posts/a-successful-git-branching-model/)
 
 ---
 
@@ -16,6 +19,7 @@ All training logic runs inside Docker containers; OS wrapper scripts only call D
 - [Overview](#overview)
 - [Quick Start](#quick-start)
 - [Project Structure](#project-structure)
+- [Branching Strategy](#branching-strategy)
 - [Running Training](#running-training)
 - [Dataset Preparation](#dataset-preparation)
 - [Validation & Verification](#validation--verification)
@@ -23,6 +27,7 @@ All training logic runs inside Docker containers; OS wrapper scripts only call D
 - [Rebuilding Docker Images](#rebuilding-docker-images)
 - [Environment Variables](#environment-variables)
 - [Datasets](#datasets)
+- [Releases](#releases)
 
 ---
 
@@ -52,8 +57,8 @@ All training logic runs inside Docker containers; OS wrapper scripts only call D
 ### 1. Clone and configure
 
 ```bash
-git clone https://github.com/piergiorgio-vagnozzi/hippokrates.git
-cd hippokrates/cephnet
+git clone https://github.com/pvagnozzi/cephnet.git
+cd cephnet
 cp .env.example .env
 # Edit .env as needed
 ```
@@ -90,7 +95,54 @@ scripts\windows\run_train.ps1 -Config configs/training/default.yaml
 
 ---
 
-## Project Structure
+## Branching Strategy
+
+This project follows **[GitFlow](https://nvie.com/posts/a-successful-git-branching-model/)** with automatic semantic versioning via [GitVersion](https://gitversion.net/).
+
+| Branch | Purpose | Protection |
+|--------|---------|------------|
+| `main` | Production-ready releases | ✅ PR required · 1 approval · CI pass |
+| `dev` | Active development (≡ develop) | ✅ PR required · 1 approval · CI pass |
+| `feature/**` | New features | ✅ PR required · CI pass |
+| `release/**` | Release preparation | ✅ PR required · 1 approval · CI pass |
+| `hotfix/**` | Production hotfixes | ✅ PR required · 1 approval · CI pass |
+
+**Version scheme:** `MAJOR.MINOR.PATCH[-pre]`
+- PR merged to `main` → stable release (e.g. `1.2.0`)
+- PR merged to `dev` → pre-release (e.g. `1.2.0-alpha.3`)
+
+To configure branch protection (requires repo admin + `gh` CLI):
+
+```bash
+# Linux / macOS
+scripts/linux/setup-branch-protection.sh
+
+# Windows (PowerShell)
+scripts\windows\setup-branch-protection.ps1
+```
+
+---
+
+## Releases
+
+Every PR merged to `main` or `dev` automatically:
+
+1. 🏷️ Computes the version via **GitVersion** (GitFlow mode)
+2. 📋 Generates a **CHANGELOG.md** from git history (emoji, grouped by type)
+3. 📦 Publishes a **GitHub Release** with a zip artifact:
+   ```
+   cephnet-vX.Y.Z/
+   ├── CHANGELOG.md        ← full git history changelog
+   ├── models/README.md    ← placeholder for trained model artifacts
+   └── reports/README.md   ← placeholder for training reports
+   ```
+4. 🔖 Updates the version badge in this README
+
+Browse all releases: **[github.com/pvagnozzi/cephnet/releases](https://github.com/pvagnozzi/cephnet/releases)**
+
+---
+
+
 
 ```
 cephnet/
