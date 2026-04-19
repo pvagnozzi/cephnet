@@ -11,3 +11,4 @@
 
 ---
 **Full Changelog**: https://github.com/pvagnozzi/cephnet/compare/{{ PREVIOUS_TAG }}...{{ TAG }}
+# trigger: 2026-04-19
