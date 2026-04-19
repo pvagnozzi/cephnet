@@ -16,6 +16,12 @@ on:
     branches:
       - main
       - dev
+  workflow_dispatch:
+    inputs:
+      base_ref:
+        description: "Target branch (main or dev)"
+        required: false
+        default: "main"
 
 permissions:
   contents: write
@@ -24,7 +30,7 @@ permissions:
 jobs:
   release:
     name: 📦 Build & Publish Release
-    if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
 
     steps:
@@ -224,7 +230,7 @@ jobs:
           name: "🏷️ cephnet v${{ steps.gitversion.outputs.semVer }}"
           body_path: /tmp/release_notes.md
           draft: false
-          prerelease: ${{ github.base_ref == 'dev' }}
+          prerelease: ${{ (github.base_ref == 'dev') || (github.event.inputs.base_ref == 'dev') }}
           files: |
             cephnet-v${{ steps.gitversion.outputs.semVer }}.zip
         env:
