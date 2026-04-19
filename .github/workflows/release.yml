@@ -60,9 +60,12 @@ jobs:
       # 3. Install git-cliff and generate CHANGELOG
       # ───────────────────────────────────────────
       - name: 📋 Install git-cliff
-        uses: taiki-e/install-action@375e0c7a7d989f9c7dc5af1acf8d9dcb8f8ad6b1 # v2.44.58
-        with:
-          tool: git-cliff
+        run: |
+          CLIFF_VERSION="2.7.0"
+          curl -sSfL \
+            "https://github.com/orhun/git-cliff/releases/download/v${CLIFF_VERSION}/git-cliff-${CLIFF_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
+            | tar -xz --strip-components=1 -C /usr/local/bin git-cliff-${CLIFF_VERSION}/git-cliff
+          git-cliff --version
 
       - name: 📋 Generate CHANGELOG.md
         run: |
