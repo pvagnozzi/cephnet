@@ -31,7 +31,8 @@ class BaseDataset(Dataset[dict[str, Any]], abc.ABC):
         self.split = split
         self.image_size = image_size
         self.transform = transform
-        self._samples: list[dict[str, Any]] = []  # {"image_path": Path, "landmarks": np.ndarray (N,2)}
+        # {"image_path": Path, "landmarks": np.ndarray (N,2)}
+        self._samples: list[dict[str, Any]] = []
         self._load_samples()
 
     @abc.abstractmethod
