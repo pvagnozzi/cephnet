@@ -2,11 +2,12 @@
 # MIT License
 # Author: Piergiorgio Vagnozzi
 # Created: 2026-04-19
-# Last modified: 2026-04-19
+# Last modified: 2026-04-20
 # Description: Release workflow — triggered on PR merge to main or dev.
-#              Steps: compute version → generate changelog → build release zip
-#              (models/ + reports/ scaffolding + CHANGELOG.md) → update README
-#              badges → commit + tag → publish GitHub Release.
+#              Steps: compute version → generate changelog → build Docker images
+#              → prepare synthetic dataset → train model → validate → export ONNX
+#              → build release zip (models/ + reports/ + CHANGELOG.md)
+#              → update README badges → commit + tag → publish GitHub Release.
 
 name: 🚀 Release
 
@@ -97,14 +98,80 @@ jobs:
       - name: 📝 Update README.md badges
         run: |
           VERSION="${{ steps.gitversion.outputs.semVer }}"
-          # Replace version badge value (img.shields.io/badge/version-X.Y.Z-...)
           sed -i \
             "s|img.shields.io/badge/version-[^-]*-brightgreen|img.shields.io/badge/version-${VERSION}-brightgreen|g" \
             README.md
           echo "✅ README.md badge version → ${VERSION}"
 
       # ───────────────────────────────────────────
-      # 6. Commit changelog + version bump
+      # 6. Create artifact output directories
+      # ───────────────────────────────────────────
+      - name: 📂 Create artifact directories
+        run: |
+          mkdir -p models/checkpoints models/exports
+          mkdir -p reports/metrics reports/logs reports/plots reports/verification
+          mkdir -p data/raw data/interim data/processed
+
+      # ───────────────────────────────────────────
+      # 7. Build Docker images (base → cpu)
+      # ───────────────────────────────────────────
+      - name: 🐳 Build cephnet-base image
+        run: |
+          docker build \
+            -f containers/base/Dockerfile \
+            -t cephnet-base:latest \
+            .
+          echo "✅ cephnet-base:latest built"
+
+      - name: 🐳 Build cephnet-cpu image
+        run: |
+          docker build \
+            -f containers/cpu/Dockerfile \
+            -t cephnet-cpu:latest \
+            .
+          echo "✅ cephnet-cpu:latest built"
+
+      # ───────────────────────────────────────────
+      # 8. Prepare synthetic dataset
+      # ───────────────────────────────────────────
+      - name: 📦 Prepare synthetic dataset
+        run: |
+          docker compose \
+            -f containers/compose/docker-compose.ci.yml \
+            --project-directory "${GITHUB_WORKSPACE}" \
+            run --rm trainer \
+            uv run python scripts/python/prepare_dataset.py \
+              --config configs/training/ci.yaml \
+              --synthetic \
+              --n-train 60 --n-val 20 --n-test 20
+
+      # ───────────────────────────────────────────
+      # 9. Train model (2 epochs, synthetic data)
+      # ───────────────────────────────────────────
+      - name: 🚀 Train model
+        run: |
+          docker compose \
+            -f containers/compose/docker-compose.ci.yml \
+            --project-directory "${GITHUB_WORKSPACE}" \
+            run --rm trainer \
+            uv run python scripts/python/train_model.py \
+              --config configs/training/ci.yaml
+
+      # ───────────────────────────────────────────
+      # 10. Validate model — generate metrics reports
+      # ───────────────────────────────────────────
+      - name: 🧪 Validate model
+        run: |
+          docker compose \
+            -f containers/compose/docker-compose.ci.yml \
+            --project-directory "${GITHUB_WORKSPACE}" \
+            run --rm trainer \
+            uv run python scripts/python/validate_model.py \
+              --config configs/training/ci.yaml
+        continue-on-error: true
+
+      # ───────────────────────────────────────────
+      # 11. Commit changelog + version bump
       # ───────────────────────────────────────────
       - name: 🔧 Configure git identity
         run: |
@@ -122,7 +189,7 @@ jobs:
           fi
 
       # ───────────────────────────────────────────
-      # 7. Create and push version tag
+      # 12. Create and push version tag
       # ───────────────────────────────────────────
       - name: 🏷️ Create git tag
         run: |
@@ -137,67 +204,61 @@ jobs:
           git push origin HEAD
 
       # ───────────────────────────────────────────
-      # 8. Build release zip
+      # 13. Build release zip
       #    Structure:
       #      cephnet-vX.Y.Z/
       #        CHANGELOG.md
-      #        models/README.md
-      #        reports/README.md
+      #        models/
+      #          exports/cephnet_ci.onnx   ← ONNX model
+      #          checkpoints/              ← best checkpoint
+      #        reports/
+      #          metrics/                  ← MRE, SDR tables + HTML
+      #          logs/                     ← training logs
       # ───────────────────────────────────────────
       - name: 📦 Build release zip
         run: |
           VERSION="${{ steps.gitversion.outputs.semVer }}"
           RELEASE_DIR="cephnet-v${VERSION}"
 
-          mkdir -p "${RELEASE_DIR}/models"
-          mkdir -p "${RELEASE_DIR}/reports"
+          mkdir -p "${RELEASE_DIR}/models/exports"
+          mkdir -p "${RELEASE_DIR}/models/checkpoints"
+          mkdir -p "${RELEASE_DIR}/reports/metrics"
+          mkdir -p "${RELEASE_DIR}/reports/logs"
 
           cp CHANGELOG.md "${RELEASE_DIR}/"
 
-          cat > "${RELEASE_DIR}/models/README.md" << 'EOF'
-          # 🤖 Models
+          # Copy ONNX model(s)
+          if ls models/exports/*.onnx 2>/dev/null | grep -q .; then
+            cp models/exports/*.onnx "${RELEASE_DIR}/models/exports/"
+            echo "✅ ONNX models included: $(ls models/exports/*.onnx)"
+          else
+            echo "⚠️  No ONNX models found in models/exports/"
+          fi
 
-          Place your trained model artifacts here after running the training pipeline:
+          # Copy best checkpoint
+          if ls models/checkpoints/*.pth 2>/dev/null | grep -q .; then
+            cp models/checkpoints/*.pth "${RELEASE_DIR}/models/checkpoints/"
+            echo "✅ Checkpoints included"
+          fi
 
-          | Path | Description |
-          |------|-------------|
-          | `checkpoints/` | Training checkpoints (`.pth`) |
-          | `exports/` | Exported inference artifacts |
-          | `artifacts/` | Additional model metadata |
+          # Copy metrics reports (CSV + HTML)
+          if [ -d reports/metrics ] && [ "$(ls -A reports/metrics 2>/dev/null)" ]; then
+            cp -r reports/metrics/. "${RELEASE_DIR}/reports/metrics/"
+            echo "✅ Metrics reports included"
+          fi
 
-          Run training locally:
-          ```bash
-          scripts/linux/run_train.sh --config configs/training/default.yaml
-          # or on Windows:
-          scripts\windows\run_train.ps1 -Config configs/training/default.yaml
-          ```
-          EOF
-
-          cat > "${RELEASE_DIR}/reports/README.md" << 'EOF'
-          # 📊 Reports
-
-          Place your training reports here after running validation:
-
-          | Path | Description |
-          |------|-------------|
-          | `metrics/` | MRE, SDR@2/2.5/3/4mm tables |
-          | `plots/` | Learning curves, landmark error plots |
-          | `verification/` | Cross-dataset drift analysis |
-          | `logs/` | Training logs |
-
-          Run validation locally:
-          ```bash
-          scripts/linux/run_validate.sh
-          scripts/linux/run_verify.sh
-          ```
-          EOF
+          # Copy training logs
+          if [ -d reports/logs ] && [ "$(ls -A reports/logs 2>/dev/null)" ]; then
+            cp -r reports/logs/. "${RELEASE_DIR}/reports/logs/"
+            echo "✅ Training logs included"
+          fi
 
           zip -r "${RELEASE_DIR}.zip" "${RELEASE_DIR}/"
           echo "✅ Release zip: ${RELEASE_DIR}.zip"
           ls -lh "${RELEASE_DIR}.zip"
 
       # ───────────────────────────────────────────
-      # 9. Extract release notes from CHANGELOG
+      # 14. Extract release notes from CHANGELOG
       # ───────────────────────────────────────────
       - name: 📋 Extract release notes
         id: release_notes
@@ -220,7 +281,7 @@ jobs:
           echo "notes_file=/tmp/release_notes.md" >> "$GITHUB_OUTPUT"
 
       # ───────────────────────────────────────────
-      # 10. Publish GitHub Release
+      # 15. Publish GitHub Release
       # ───────────────────────────────────────────
       - name: 🚀 Create GitHub Release
         uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191 # v2.2.1

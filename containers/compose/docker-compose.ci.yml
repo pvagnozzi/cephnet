@@ -1,0 +1,28 @@
+# containers/compose/docker-compose.ci.yml
+# MIT License
+# Author: Piergiorgio Vagnozzi
+# Created: 2026-04-20
+# Last modified: 2026-04-20
+# Description: Docker Compose override for CI.
+#   - data/ → bind-mounted to ./data (synthetic only, no persistence needed)
+#   - models/, reports/, configs/ inherited from docker-compose.cpu.yml
+
+services:
+  trainer:
+    image: cephnet-cpu:latest
+    volumes:
+      - ./data:/data
+      - ./models:/models
+      - ./reports:/reports
+      - ./configs:/workspace/configs:ro
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - CEPHNET_SEED=42
+    working_dir: /workspace
+    networks:
+      - cephnet
+
+networks:
+  cephnet:
+    name: cephnet-network

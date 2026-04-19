@@ -1,0 +1,66 @@
+# configs/training/ci.yaml
+# MIT License
+# Author: Piergiorgio Vagnozzi
+# Created: 2026-04-20
+# Last modified: 2026-04-20
+# Description: Minimal CI training configuration — synthetic data, 2 epochs,
+#              small images. Designed for fast execution in GitHub Actions.
+
+dataset:
+  name: isbi2015
+  root: /data/processed/isbi2015
+  raw_root: /data/raw/isbi2015
+  image_size: [128, 128]
+  n_landmarks: 19
+  pixel_spacing_mm: 0.1
+  train_ratio: 0.6
+  val_ratio: 0.2
+  test_ratio: 0.2
+
+model:
+  type: heatmap
+  backbone: resnet50
+  pretrained: false
+  n_landmarks: 19
+  heatmap_sigma: 2.0
+  heatmap_size: [64, 64]
+  dropout: 0.0
+
+training:
+  epochs: 2
+  batch_size: 4
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  scheduler:
+    type: cosine
+    params:
+      T_max: 2
+      eta_min: 0.0001
+  mixed_precision: false
+  gradient_clip_norm: 1.0
+  early_stopping:
+    enabled: false
+    patience: 10
+    min_delta: 0.0001
+  seed: 42
+  experiment_name: cephnet_ci
+  checkpoint_dir: /models/checkpoints
+  export_dir: /models/exports
+  num_workers: 0
+
+logging:
+  level: INFO
+  console: true
+  file: true
+  log_dir: /reports/logs
+  log_interval_steps: 5
+  save_metrics_every_n_epochs: 1
+
+augmentation:
+  enabled: false
+  p_horizontal_flip: 0.0
+  p_rotation: 0.0
+  rotation_limit: 0.0
+  p_brightness_contrast: 0.0
+  p_gaussian_noise: 0.0
+  p_elastic_transform: 0.0
