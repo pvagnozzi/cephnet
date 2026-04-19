@@ -5,6 +5,19 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and [Conventional Commits](https://www.conventionalcommits.org/).
 
 ---
+## 🏷️ [0.1.0-10] — 2026-04-19
+
+### 🐛 Bug Fixes
+
+- Fix VERSION env in python, robust tag creation, configFilePath ([`e2dc01a`](https://github.com/pvagnozzi/cephnet/commit/e2dc01ab6cd63514200326f465c6670b36923bf9)) — *Piergiorgio Vagnozzi*
+
+- Trigger release pipeline verification (#2) ([`7f00dec`](https://github.com/pvagnozzi/cephnet/commit/7f00decc0428c7854cf5a1f88228d9dfdbd1e025)) — *Piergiorgio Vagnozzi*
+
+- Fix YAML parse error - replace Python inline with awk ([`ca6f74a`](https://github.com/pvagnozzi/cephnet/commit/ca6f74a07318214c5b432463b38a883e2c9ba5e3)) — *Piergiorgio Vagnozzi*
+
+- Test YAML-corrected release workflow (#3) ([`e0c1ba2`](https://github.com/pvagnozzi/cephnet/commit/e0c1ba2335c019b65c8d3d608ad5d48d8e631ed5)) — *Piergiorgio Vagnozzi*
+
+
 ## 🏷️ [0.1.0-6] — 2026-04-19
 
 ### ✨ Features
@@ -15,6 +28,8 @@ and [Conventional Commits](https://www.conventionalcommits.org/).
 ### 🏠 Chores
 
 - Clean caches, add _common.sh, fix scripts, add .dockerignore ([`6213d44`](https://github.com/pvagnozzi/cephnet/commit/6213d4428f9d758164b4fbe6aacccf00a0735d95)) — *Piergiorgio Vagnozzi*
+
+- Bump version to v0.1.0-6 [skip ci] ([`47e357e`](https://github.com/pvagnozzi/cephnet/commit/47e357eaaab0c223b4a3a382e100dcd6dfbdccf4)) — *github-actions[bot]*
 
 
 ### 🐛 Bug Fixes
