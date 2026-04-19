@@ -55,7 +55,7 @@ jobs:
         id: gitversion
         uses: gittools/actions/gitversion/execute@81f0bc44e27a689ce858668d7a2081ac2387b605 # v4.0.0
         with:
-          useConfigFile: true
+          configFilePath: GitVersion.yml
 
       - name: 🖨️ Print computed version
         run: |
@@ -127,10 +127,14 @@ jobs:
       - name: 🏷️ Create git tag
         run: |
           VERSION="${{ steps.gitversion.outputs.semVer }}"
-          git tag -a "v${VERSION}" -m "Release v${VERSION}"
+          if git rev-parse "v${VERSION}" >/dev/null 2>&1; then
+            echo "ℹ️  Tag v${VERSION} already exists, skipping"
+          else
+            git tag -a "v${VERSION}" -m "Release v${VERSION}"
+            git push origin "v${VERSION}"
+            echo "✅ Tag v${VERSION} pushed"
+          fi
           git push origin HEAD
-          git push origin "v${VERSION}"
-          echo "✅ Tag v${VERSION} pushed"
 
       # ───────────────────────────────────────────
       # 8. Build release zip
@@ -197,27 +201,23 @@ jobs:
       # ───────────────────────────────────────────
       - name: 📋 Extract release notes
         id: release_notes
+        env:
+          RELEASE_VERSION: ${{ steps.gitversion.outputs.semVer }}
         run: |
-          VERSION="${{ steps.gitversion.outputs.semVer }}"
-          # Extract section for this version from CHANGELOG.md
-          python3 - <<'PYEOF'
-          import re, sys
-
-          with open("CHANGELOG.md") as f:
-              content = f.read()
-
-          # Match section starting at version header until next version header or EOF
-          pattern = r"(## 🏷️ \[" + re.escape(VERSION) + r"\].*?)(?=\n## 🏷️ |\Z)"
-          match = re.search(pattern, content, re.DOTALL)
-
-          notes = match.group(1).strip() if match else f"## 🏷️ [{VERSION}]\n\nRelease {VERSION}"
-
-          # Write to file to handle multi-line content
-          with open("/tmp/release_notes.md", "w") as f:
-              f.write(notes)
-
-          print("✅ Release notes extracted")
-          PYEOF
+          python3 -c "
+import re, os
+version = os.environ['RELEASE_VERSION']
+with open('CHANGELOG.md') as f:
+    content = f.read()
+# Match any section header containing the version
+pattern = r'(##[^\n]*\[?' + re.escape(version) + r'\]?[^\n]*\n.*?)(?=\n##[^\n]*\[|\Z)'
+match = re.search(pattern, content, re.DOTALL)
+notes = match.group(1).strip() if match else f'## v{version}\n\nRelease {version}'
+with open('/tmp/release_notes.md', 'w') as f:
+    f.write(notes)
+print('Release notes extracted:')
+print(notes[:500])
+"
           echo "notes_file=/tmp/release_notes.md" >> "$GITHUB_OUTPUT"
 
       # ───────────────────────────────────────────
