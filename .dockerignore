@@ -1,0 +1,81 @@
+# .dockerignore
+# MIT License
+# Author: Piergiorgio Vagnozzi
+# Created: 2026-04-19
+# Last modified: 2026-04-19
+# Description: Files excluded from Docker build context.
+#              Keeps images lean and prevents secrets/caches from leaking in.
+
+# ── Version control ───────────────────────────────────────────────────────────
+.git
+.gitignore
+.gitattributes
+
+# ── Python caches & virtual envs ──────────────────────────────────────────────
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/*.so
+.venv
+venv
+env
+ENV
+
+# ── Tool caches ───────────────────────────────────────────────────────────────
+.mypy_cache
+.ruff_cache
+.pytest_cache
+.cache
+htmlcov
+.coverage
+.coverage.*
+
+# ── Build artifacts ───────────────────────────────────────────────────────────
+dist
+build
+*.egg-info
+*.egg
+MANIFEST
+
+# ── Host-only data directories (mounted as volumes at runtime) ────────────────
+data/
+models/
+reports/
+logs/
+
+# ── Secrets ───────────────────────────────────────────────────────────────────
+.env
+!.env.example
+*.pem
+*.key
+*.p12
+
+# ── CI/CD ─────────────────────────────────────────────────────────────────────
+.github
+
+# ── Documentation ─────────────────────────────────────────────────────────────
+*.md
+!README.md
+docs/
+
+# ── Tests (not needed in production image) ────────────────────────────────────
+tests/
+
+# ── IDE / OS artifacts ────────────────────────────────────────────────────────
+.vscode
+.idea
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+*~
+
+# ── MLflow ────────────────────────────────────────────────────────────────────
+mlruns/
+mlartifacts/
+
+# ── Jupyter ───────────────────────────────────────────────────────────────────
+*.ipynb
+.ipynb_checkpoints
