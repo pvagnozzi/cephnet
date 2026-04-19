@@ -1,0 +1,94 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# .gitignore — cephnet
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyd
+*.pyo
+
+# ── Distribution / packaging ──────────────────────────────────────────────────
+dist/
+build/
+*.egg-info/
+*.egg
+MANIFEST
+
+# ── Virtual environments ──────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+
+# ── Tool caches ───────────────────────────────────────────────────────────────
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
+*.cover
+.coverage
+.coverage.*
+htmlcov/
+
+# ── Secrets ───────────────────────────────────────────────────────────────────
+.env
+!.env.example
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+*.log
+logs/
+!logs/.gitkeep
+
+# ── Data directories (host-mounted, never committed) ──────────────────────────
+data/raw/*
+!data/raw/.gitkeep
+data/interim/*
+!data/interim/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/external/*
+!data/external/.gitkeep
+
+# ── Model artifacts (host-mounted, never committed) ───────────────────────────
+models/checkpoints/*
+!models/checkpoints/.gitkeep
+models/exports/*
+!models/exports/.gitkeep
+models/artifacts/*
+!models/artifacts/.gitkeep
+
+# ── Reports (host-mounted, never committed) ───────────────────────────────────
+reports/metrics/*
+!reports/metrics/.gitkeep
+reports/plots/*
+!reports/plots/.gitkeep
+reports/verification/*
+!reports/verification/.gitkeep
+reports/logs/*
+!reports/logs/.gitkeep
+
+# ── MLflow ────────────────────────────────────────────────────────────────────
+mlruns/
+mlartifacts/
+
+# ── Jupyter ───────────────────────────────────────────────────────────────────
+*.ipynb_checkpoints/
+.ipynb_checkpoints/
+
+# ── OS artifacts ─────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── IDEs ──────────────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ── uv ────────────────────────────────────────────────────────────────────────
+# uv.lock is committed (source of truth for reproducible installs)

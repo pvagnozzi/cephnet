@@ -1,0 +1,54 @@
+# Normalize line endings for all text files
+* text=auto
+
+# ── Force LF ─────────────────────────────────────────────────────────────────
+*.py        text eol=lf
+*.sh        text eol=lf
+*.bash      text eol=lf
+*.zsh       text eol=lf
+Dockerfile  text eol=lf
+Dockerfile.* text eol=lf
+*.dockerfile text eol=lf
+*.yaml      text eol=lf
+*.yml       text eol=lf
+*.toml      text eol=lf
+*.cfg       text eol=lf
+*.ini       text eol=lf
+*.md        text eol=lf
+*.txt       text eol=lf
+*.json      text eol=lf
+*.env       text eol=lf
+*.env.example text eol=lf
+Makefile    text eol=lf
+*.mk        text eol=lf
+.editorconfig text eol=lf
+.gitattributes text eol=lf
+.gitignore  text eol=lf
+
+# ── Binary files — no line-ending conversion ──────────────────────────────────
+*.png       binary
+*.jpg       binary
+*.jpeg      binary
+*.gif       binary
+*.ico       binary
+*.bmp       binary
+*.tiff      binary
+*.pt        binary
+*.pth       binary
+*.onnx      binary
+*.pkl       binary
+*.npy       binary
+*.npz       binary
+*.h5        binary
+*.hdf5      binary
+*.zip       binary
+*.tar       binary
+*.tar.gz    binary
+*.gz        binary
+*.whl       binary
+*.pdf       binary
+
+# ── Generated files ───────────────────────────────────────────────────────────
+uv.lock     text eol=lf linguist-generated=true
+*.egg-info/ linguist-generated=true
+dist/       linguist-generated=true

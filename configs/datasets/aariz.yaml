@@ -1,0 +1,33 @@
+name: aariz
+root: /data/processed/aariz
+raw_root: /data/raw/aariz
+interim_root: /data/interim/aariz
+image_size: [512, 512]
+n_landmarks: 19
+pixel_spacing_mm: 0.1
+train_ratio: 0.0
+val_ratio: 0.0
+test_ratio: 1.0
+image_format: png
+annotation_format: csv
+landmark_names:
+  - sella
+  - nasion
+  - orbitale
+  - porion
+  - subspinale
+  - supramentale
+  - pogonion
+  - menton
+  - gnathion
+  - gonion
+  - incision_inferius
+  - incision_superius
+  - upper_lip
+  - lower_lip
+  - subnasale
+  - soft_tissue_pogonion
+  - posterior_nasal_spine
+  - anterior_nasal_spine
+  - articulare
+download_url: https://github.com/manwaarkhd/aariz-cephalometric-dataset/archive/refs/heads/main.zip

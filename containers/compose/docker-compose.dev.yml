@@ -1,0 +1,36 @@
+# containers/compose/docker-compose.dev.yml
+# MIT License
+# Author: Piergiorgio Vagnozzi
+# Created: 2024-01-01
+# Last modified: 2024-01-01
+# Description: Development compose profile. Mounts the entire source tree for live
+#              editing and installs dev dependencies (tests, linters, type checkers).
+
+services:
+  trainer:
+    build:
+      context: ../..
+      dockerfile: containers/cpu/Dockerfile
+    image: cephnet-dev:latest
+    container_name: cephnet-dev
+    volumes:
+      - ../../src:/workspace/src
+      - ../../tests:/workspace/tests
+      - ../../scripts:/workspace/scripts
+      - ../../configs:/workspace/configs
+      - ../../data:/data
+      - ../../models:/models
+      - ../../reports:/reports
+    environment:
+      - PYTHONUNBUFFERED=1
+      - CEPHNET_SEED=42
+    working_dir: /workspace
+    command: bash
+    stdin_open: true
+    tty: true
+    networks:
+      - cephnet
+
+networks:
+  cephnet:
+    name: cephnet-network

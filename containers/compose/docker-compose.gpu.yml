@@ -1,0 +1,47 @@
+# containers/compose/docker-compose.gpu.yml
+# MIT License
+# Author: Piergiorgio Vagnozzi
+# Created: 2024-01-01
+# Last modified: 2026-04-19
+# Description: Docker Compose for GPU-accelerated training.
+#   - data/         → named Docker volume (cephnet-data): datasets persist without cluttering the host
+#   - models/       → bind-mounted to host: checkpoints + ONNX exports are accessible on the host
+#   - reports/      → bind-mounted to host: metrics, HTML reports, CSVs are readable on the host
+#   - configs/      → bind-mounted read-only from host
+#   Requires the NVIDIA Container Toolkit on the host.
+
+services:
+  trainer:
+    build:
+      context: ../..
+      dockerfile: containers/gpu/Dockerfile
+    image: cephnet-gpu:latest
+    volumes:
+      - cephnet-data:/data
+      - ./models:/models
+      - ./reports:/reports
+      - ./configs:/workspace/configs:ro
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - CEPHNET_SEED=${CEPHNET_SEED:-42}
+      - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI:-}
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    working_dir: /workspace
+    networks:
+      - cephnet
+
+networks:
+  cephnet:
+    name: cephnet-network
+
+volumes:
+  cephnet-data:
+    name: cephnet-data
+    driver: local

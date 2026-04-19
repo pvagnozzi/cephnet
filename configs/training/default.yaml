@@ -1,0 +1,61 @@
+# configs/training/default.yaml
+# Default training configuration for cephnet
+
+dataset:
+  name: isbi2015
+  root: /data/processed/isbi2015
+  raw_root: /data/raw/isbi2015
+  image_size: [512, 512]
+  n_landmarks: 19
+  pixel_spacing_mm: 0.1
+  train_ratio: 0.6
+  val_ratio: 0.2
+  test_ratio: 0.2
+
+model:
+  type: heatmap
+  backbone: resnet50
+  pretrained: true
+  n_landmarks: 19
+  heatmap_sigma: 3.0
+  heatmap_size: [128, 128]
+  dropout: 0.3
+
+training:
+  epochs: 100
+  batch_size: 8
+  learning_rate: 0.0001
+  weight_decay: 0.0001
+  scheduler:
+    type: cosine
+    params:
+      T_max: 100
+      eta_min: 0.000001
+  mixed_precision: false
+  gradient_clip_norm: 1.0
+  early_stopping:
+    enabled: true
+    patience: 20
+    min_delta: 0.0001
+  seed: 42
+  experiment_name: cephnet_default
+  checkpoint_dir: /models/checkpoints
+  export_dir: /models/exports
+  num_workers: 2
+
+logging:
+  level: INFO
+  console: true
+  file: true
+  log_dir: /reports/logs
+  log_interval_steps: 10
+  save_metrics_every_n_epochs: 1
+
+augmentation:
+  enabled: true
+  p_horizontal_flip: 0.0
+  p_rotation: 0.5
+  rotation_limit: 10.0
+  p_brightness_contrast: 0.5
+  p_gaussian_noise: 0.3
+  p_elastic_transform: 0.2

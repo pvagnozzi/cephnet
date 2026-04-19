@@ -1,0 +1,23 @@
+# requirements/docker-cpu.txt
+# Docker CPU-only requirements — torch from CPU wheel index only.
+# Used during `docker build` to avoid downloading CUDA packages.
+
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+torch>=2.2.0
+torchvision>=0.17.0
+numpy>=1.26.0
+pillow>=10.2.0
+pydantic>=2.6.0
+pyyaml>=6.0.1
+rich>=13.7.0
+click>=8.1.7
+albumentations>=1.3.1
+opencv-python-headless>=4.9.0
+pandas>=2.2.0
+matplotlib>=3.8.0
+scipy>=1.12.0
+tqdm>=4.66.0
+requests>=2.31.0
+coloredlogs>=15.0.0
+onnx>=1.15.0

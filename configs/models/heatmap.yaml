@@ -1,0 +1,8 @@
+type: heatmap
+backbone: resnet50
+pretrained: true
+n_landmarks: 19
+heatmap_sigma: 3.0
+heatmap_size: [128, 128]
+encoder_channels: [64, 128, 256, 512]
+decoder_channels: [256, 128, 64]

@@ -1,0 +1,6 @@
+type: regression
+backbone: resnet50
+pretrained: true
+n_landmarks: 19
+dropout: 0.3
+hidden_dim: 512

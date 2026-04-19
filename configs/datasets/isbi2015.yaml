@@ -1,0 +1,32 @@
+name: isbi2015
+root: /data/processed/isbi2015
+raw_root: /data/raw/isbi2015
+interim_root: /data/interim/isbi2015
+image_size: [512, 512]
+n_landmarks: 19
+pixel_spacing_mm: 0.1
+train_ratio: 0.6
+val_ratio: 0.2
+test_ratio: 0.2
+image_format: png
+annotation_format: csv
+landmark_names:
+  - sella
+  - nasion
+  - orbitale
+  - porion
+  - subspinale
+  - supramentale
+  - pogonion
+  - menton
+  - gnathion
+  - gonion
+  - incision_inferius
+  - incision_superius
+  - upper_lip
+  - lower_lip
+  - subnasale
+  - soft_tissue_pogonion
+  - posterior_nasal_spine
+  - anterior_nasal_spine
+  - articulare

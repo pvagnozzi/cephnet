@@ -1,0 +1,23 @@
+# containers/compose/docker-compose.mlflow.yml
+# MIT License
+# Author: Piergiorgio Vagnozzi
+# Created: 2024-01-01
+# Last modified: 2024-01-01
+# Description: Optional MLflow tracking server. Run alongside the trainer to enable
+#              experiment tracking. Set MLFLOW_TRACKING_URI=http://mlflow:5000 in trainer.
+
+services:
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.11.0
+    container_name: cephnet-mlflow
+    ports:
+      - "5000:5000"
+    volumes:
+      - ../../reports/mlruns:/mlflow/mlruns
+    command: mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri /mlflow/mlruns
+    networks:
+      - cephnet
+
+networks:
+  cephnet:
+    name: cephnet-network

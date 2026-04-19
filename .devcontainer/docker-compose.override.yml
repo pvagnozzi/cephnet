@@ -1,0 +1,13 @@
+# .devcontainer/docker-compose.override.yml
+# MIT License
+# Author: Piergiorgio Vagnozzi
+# Created: 2024-01-01
+# Last modified: 2024-01-01
+# Description: VS Code Dev Container overrides. Mounts the full repo into /workspace
+#              and keeps the container alive with sleep infinity.
+
+services:
+  trainer:
+    volumes:
+      - ..:/workspace
+    command: sleep infinity

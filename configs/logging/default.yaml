@@ -1,0 +1,7 @@
+level: INFO
+console: true
+file: true
+log_dir: /reports/logs
+log_interval_steps: 10
+save_metrics_every_n_epochs: 1
+rich_traceback: true

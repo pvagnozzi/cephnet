@@ -1,0 +1,39 @@
+# containers/compose/docker-compose.cpu.yml
+# MIT License
+# Author: Piergiorgio Vagnozzi
+# Created: 2024-01-01
+# Last modified: 2026-04-19
+# Description: Docker Compose for CPU-only training.
+#   - data/         → named Docker volume (cephnet-data): datasets persist without cluttering the host
+#   - models/       → bind-mounted to host: checkpoints + ONNX exports are accessible on the host
+#   - reports/      → bind-mounted to host: metrics, HTML reports, CSVs are readable on the host
+#   - configs/      → bind-mounted read-only from host
+
+services:
+  trainer:
+    build:
+      context: ../..
+      dockerfile: containers/cpu/Dockerfile
+    image: cephnet-cpu:latest
+    volumes:
+      - cephnet-data:/data
+      - ./models:/models
+      - ./reports:/reports
+      - ./configs:/workspace/configs:ro
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - CEPHNET_SEED=${CEPHNET_SEED:-42}
+      - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI:-}
+    working_dir: /workspace
+    networks:
+      - cephnet
+
+networks:
+  cephnet:
+    name: cephnet-network
+
+volumes:
+  cephnet-data:
+    name: cephnet-data
+    driver: local
