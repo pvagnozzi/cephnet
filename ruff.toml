@@ -4,7 +4,12 @@ src = ["src", "tests", "scripts/python"]
 
 [lint]
 select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "PT", "RET", "SIM"]
-ignore = ["ANN101", "ANN102"]
+ignore = [
+    # ML/DL conventions: B=batch, N=landmarks, H=height, W=width are standard uppercase
+    "N806",
+    # torch.nn.functional as F and albumentations as A are accepted PyTorch/CV idioms
+    "N812",
+]
 
 [lint.isort]
 known-first-party = ["cephnet"]

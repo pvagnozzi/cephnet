@@ -3,13 +3,13 @@
 # Author: Piergiorgio Vagnozzi
 # Created: 2026-04-18
 # Last modified: 2026-04-19
-# Description: Windows wrapper — downloads/generates the dataset inside the cephnet-data
-#              Docker named volume. No data is written to the host directory.
+# Description: Windows wrapper — downloads/generates both the training dataset and the
+#              Aariz verification dataset inside the cephnet-data Docker named volume.
 
 param(
     [string]$Config     = "configs/training/quick_test.yaml",
     [switch]$Synthetic,   # Skip download, generate synthetic data
-    [switch]$Force,       # Overwrite existing dataset in the volume
+    [switch]$Force,       # Overwrite existing datasets in the volume
     [int]$NTrain        = 80,
     [int]$NVal          = 20,
     [int]$NTest         = 20,
@@ -24,12 +24,13 @@ $RepoRoot  = Resolve-Path (Join-Path $ScriptDir "../..")
 Ensure-ArtifactDirs -RepoRoot $RepoRoot
 $ComposeFile = Get-ComposeFile -RepoRoot $RepoRoot
 
+# --- Step 1: Prepare training dataset ---
 $CmdArgs = @("--config", $Config, "--n-train", $NTrain, "--n-val", $NVal, "--n-test", $NTest)
 if ($Synthetic) { $CmdArgs += "--synthetic" }
 if ($Force)     { $CmdArgs += "--force" }
 $CmdArgs += $ExtraArgs
 
-Write-Host "Preparing dataset (config: $Config)" -ForegroundColor Cyan
+Write-Host "Step 1/2 — Preparing training dataset (config: $Config)" -ForegroundColor Cyan
 if ($Synthetic) {
     Write-Host "   Mode: SYNTHETIC -- data written to Docker volume: cephnet-data" -ForegroundColor Yellow
 } else {
@@ -40,8 +41,25 @@ docker compose `
     -f $ComposeFile `
     --project-directory $RepoRoot `
     run --rm trainer `
-    python scripts/python/prepare_dataset.py @CmdArgs
+    uv run python scripts/python/prepare_dataset.py @CmdArgs
+
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+# --- Step 2: Prepare Aariz verification dataset ---
+$AarizArgs = @(
+    "--config", "configs/training/verify_aariz.yaml",
+    "--n-train", 0, "--n-val", 0, "--n-test", 50
+)
+if ($Synthetic) { $AarizArgs += "--synthetic" }
+if ($Force)     { $AarizArgs += "--force" }
+
+Write-Host "Step 2/2 — Preparing Aariz verification dataset" -ForegroundColor Cyan
+
+docker compose `
+    -f $ComposeFile `
+    --project-directory $RepoRoot `
+    run --rm trainer `
+    uv run python scripts/python/prepare_dataset.py @AarizArgs
 
 exit $LASTEXITCODE
-
 

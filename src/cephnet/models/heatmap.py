@@ -7,6 +7,8 @@
 
 from __future__ import annotations
 
+from typing import cast
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -85,7 +87,7 @@ class HeatmapModel(nn.Module):
                 mode="bilinear",
                 align_corners=False,
             )
-        return heatmaps  # (B, N, Hh, Hw)
+        return cast(torch.Tensor, heatmaps)  # (B, N, Hh, Hw)
 
     def predict_landmarks(self, heatmaps: torch.Tensor) -> torch.Tensor:
         """Convert heatmaps to landmark coordinates via soft-argmax.

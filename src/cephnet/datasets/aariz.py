@@ -2,13 +2,14 @@
 # MIT License
 # Author: Piergiorgio Vagnozzi
 # Created: 2026-04-18
-# Last modified: 2026-04-18
+# Last modified: 2026-04-19
 # Description: Aariz cephalometric dataset adapter (cross-dataset verification)
 
 from __future__ import annotations
 
 import logging
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -40,8 +41,8 @@ class AarizDataset(BaseDataset):
         root: Path,
         split: str = "test",
         image_size: tuple[int, int] = (512, 512),
-        train_ratio: float = 0.6,
-        val_ratio: float = 0.2,
+        train_ratio: float = 0.0,
+        val_ratio: float = 0.0,
         seed: int = 42,
         transform: object | None = None,
     ) -> None:
@@ -71,7 +72,7 @@ class AarizDataset(BaseDataset):
             return
 
         df = pd.read_csv(annotations_path)
-        all_samples: list[dict] = []
+        all_samples: list[dict[str, Any]] = []
         for _, row in df.iterrows():
             img_path = images_dir / f"{row['image_id']}.png"
             landmarks = [
@@ -102,11 +103,12 @@ class AarizDataset(BaseDataset):
         self._samples = [all_samples[i] for i in selected]
         logger.info("✅ Aariz %s split: %d samples", self.split, len(self._samples))
 
-    def _create_synthetic_samples(self) -> list[dict]:
+    def _create_synthetic_samples(self) -> list[dict[str, Any]]:
         """Create in-memory synthetic samples when real data is absent."""
         rng = np.random.default_rng(99)
-        n_samples = {"train": 20, "val": 6, "test": 6}.get(self.split, 10)
-        samples: list[dict] = []
+        # Aariz is a verification-only dataset: all samples belong to the test split
+        n_samples = {"train": 0, "val": 0, "test": 50}.get(self.split, 50)
+        samples: list[dict[str, Any]] = []
         for i in range(n_samples):
             samples.append(
                 {
@@ -119,7 +121,7 @@ class AarizDataset(BaseDataset):
             )
         return samples
 
-    def __getitem__(self, idx: int) -> dict:
+    def __getitem__(self, idx: int) -> dict[str, Any]:
         sample = self._samples[idx]
         if sample.get("_synthetic"):
             rng = np.random.default_rng(idx + 1000)  # offset to differ from ISBI2015

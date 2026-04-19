@@ -37,6 +37,7 @@ dev = [
     "types-PyYAML>=6.0.12",
     "types-tqdm>=4.66.0",
     "types-requests>=2.31.0",
+    "pandas-stubs>=3.0.0.260204",
 ]
 
 [project.scripts]

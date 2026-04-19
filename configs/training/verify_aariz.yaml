@@ -1,0 +1,51 @@
+# configs/training/verify_aariz.yaml
+# Minimal config for preparing the Aariz cross-dataset verification dataset.
+# train_ratio/val_ratio are 0.0 because Aariz is used exclusively for verification.
+
+dataset:
+  name: aariz
+  root: /data/processed/aariz
+  raw_root: /data/raw/aariz
+  image_size: [512, 512]
+  n_landmarks: 19
+  pixel_spacing_mm: 0.1
+  train_ratio: 0.0
+  val_ratio: 0.0
+  test_ratio: 1.0
+
+model:
+  type: heatmap
+  backbone: resnet50
+  pretrained: false
+  n_landmarks: 19
+  heatmap_sigma: 3.0
+  heatmap_size: [128, 128]
+  dropout: 0.0
+
+training:
+  epochs: 1
+  batch_size: 4
+  learning_rate: 0.0001
+  weight_decay: 0.0001
+  seed: 42
+  experiment_name: aariz_verify
+  checkpoint_dir: /models/checkpoints
+  export_dir: /models/exports
+  num_workers: 2
+
+logging:
+  level: INFO
+  console: true
+  file: false
+  log_dir: /reports/logs
+  log_interval_steps: 10
+  save_metrics_every_n_epochs: 1
+
+augmentation:
+  enabled: false
+  p_horizontal_flip: 0.0
+  p_rotation: 0.0
+  rotation_limit: 0.0
+  p_brightness_contrast: 0.0
+  p_gaussian_noise: 0.0
+  p_elastic_transform: 0.0

@@ -63,7 +63,7 @@ def export_to_onnx(
     with torch.no_grad():
         torch.onnx.export(
             model,
-            dummy_input,
+            (dummy_input,),
             str(out_path),
             export_params=True,
             opset_version=opset_version,

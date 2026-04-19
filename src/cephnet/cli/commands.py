@@ -21,10 +21,10 @@ from cephnet.utils.seeding import seed_everything
 
 
 @click.command()
-@click.option("--config", "-c", required=True, type=click.Path(exists=True), help="Training config YAML")
+@click.option("--config", "-c", required=True, type=click.Path(exists=True), help="Training config YAML")  # noqa: E501
 @click.option("--dataset", "-d", default=None, help="Override dataset name")
 @click.option("--force", is_flag=True, default=False, help="Overwrite existing dataset")
-@click.option("--synthetic", is_flag=True, default=False, help="Always generate synthetic data (skip download)")
+@click.option("--synthetic", is_flag=True, default=False, help="Always generate synthetic data (skip download)")  # noqa: E501
 @click.option("--n-train", default=80, show_default=True, help="Synthetic training samples")
 @click.option("--n-val", default=20, show_default=True, help="Synthetic validation samples")
 @click.option("--n-test", default=20, show_default=True, help="Synthetic test samples")
@@ -91,7 +91,7 @@ def prepare(
 
 
 @click.command()
-@click.option("--config", "-c", required=True, type=click.Path(exists=True), help="Training config YAML")
+@click.option("--config", "-c", required=True, type=click.Path(exists=True), help="Training config YAML")  # noqa: E501
 @click.option("--resume", is_flag=True, default=False, help="Resume from last checkpoint")
 def train(config: str, resume: bool) -> None:
     """🚀 Train a landmark detection model."""
@@ -109,8 +109,7 @@ def train(config: str, resume: bool) -> None:
     from cephnet.engines.checkpointer import Checkpointer
     from cephnet.engines.trainer import Trainer
     from cephnet.io.writers import MetricsWriter
-    from cephnet.models.heatmap import HeatmapModel
-    from cephnet.models.regression import RegressionModel, build_model
+    from cephnet.models.regression import build_model
 
     img_size: tuple[int, int] = (cfg.dataset.image_size[0], cfg.dataset.image_size[1])
     train_tfm = build_augmentation_pipeline(cfg.augmentation, img_size)
@@ -189,7 +188,7 @@ def train(config: str, resume: bool) -> None:
 
 
 @click.command()
-@click.option("--config", "-c", required=True, type=click.Path(exists=True), help="Training config YAML")
+@click.option("--config", "-c", required=True, type=click.Path(exists=True), help="Training config YAML")  # noqa: E501
 @click.option("--checkpoint", default=None, help="Path to specific checkpoint file")
 def validate(config: str, checkpoint: str | None) -> None:
     """🧪 Validate a trained model on the test split."""
@@ -208,7 +207,9 @@ def validate(config: str, checkpoint: str | None) -> None:
     from cephnet.models.regression import build_model
 
     img_size: tuple[int, int] = (cfg.dataset.image_size[0], cfg.dataset.image_size[1])
-    test_ds = get_dataset(cfg.dataset.name, cfg.dataset.root, "test", transform=build_val_pipeline(img_size))
+    test_ds = get_dataset(  # noqa: E501
+        cfg.dataset.name, cfg.dataset.root, "test", transform=build_val_pipeline(img_size)
+    )
     test_loader = DataLoader(test_ds, batch_size=cfg.training.batch_size, shuffle=False)
     log.info("🧪 Test split: %d samples", len(test_ds))
 
@@ -232,7 +233,9 @@ def validate(config: str, checkpoint: str | None) -> None:
     writer.write_summary(summary_dict, cfg.training.experiment_name)
 
     # Landmark table — use config names if provided, else numbered fallback
-    lm_names: list[str] | None = list(cfg.dataset.landmark_names) if cfg.dataset.landmark_names else None
+    lm_names: list[str] | None = (
+        list(cfg.dataset.landmark_names) if cfg.dataset.landmark_names else None
+    )
     per_lm: list[float] | None = None
     if metrics.per_landmark_mre is not None:
         per_lm = metrics.per_landmark_mre.tolist()
@@ -253,7 +256,7 @@ def validate(config: str, checkpoint: str | None) -> None:
 
 
 @click.command()
-@click.option("--config", "-c", required=True, type=click.Path(exists=True), help="Training config YAML")
+@click.option("--config", "-c", required=True, type=click.Path(exists=True), help="Training config YAML")  # noqa: E501
 @click.option("--verification-dataset", "-v", default="aariz", show_default=True)
 @click.option("--verification-root", default="/data/processed/aariz", show_default=True)
 @click.option("--checkpoint", default=None, help="Path to specific checkpoint file")

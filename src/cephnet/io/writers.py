@@ -154,7 +154,7 @@ class ReportWriter:
         # --- learning curve ---
         if metrics_history:
             lc_df = pd.DataFrame(metrics_history)
-            lc_html = lc_df.to_html(index=False, border=0, float_format="%.4f")
+            lc_html = lc_df.to_html(index=False, float_format="%.4f")  # type: ignore[call-overload]
         else:
             lc_html = "<p><em>No learning curve data available.</em></p>"
 
@@ -166,7 +166,7 @@ class ReportWriter:
             ]
             lm_df = pd.DataFrame({"Landmark": names, "MRE (mm)": per_landmark_mre})
             lm_df = lm_df.sort_values("MRE (mm)")
-            lm_html = lm_df.to_html(index=False, border=0, float_format="%.3f")
+            lm_html = lm_df.to_html(index=False, float_format="%.3f")  # type: ignore[call-overload]
         else:
             lm_html = "<p><em>No per-landmark data available.</em></p>"
 

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -110,18 +111,21 @@ class ISBI2015Dataset(BaseDataset):
             if not all(c in row.index for c in lm_cols_x + lm_cols_y):
                 continue
             landmarks = np.array(
-                [[float(row[f"lm_{i}_x"]), float(row[f"lm_{i}_y"])] for i in range(self.N_LANDMARKS)],
+                [
+                    [float(row[f"lm_{i}_x"]), float(row[f"lm_{i}_y"])]
+                    for i in range(self.N_LANDMARKS)
+                ],
                 dtype=np.float32,
             )
             self._samples.append({"image_path": img_path, "landmarks": landmarks})
 
         logger.info("✅ ISBI2015 %s split: %d samples", self.split, len(self._samples))
 
-    def _create_synthetic_samples(self) -> list[dict]:
+    def _create_synthetic_samples(self) -> list[dict[str, Any]]:
         """Create in-memory synthetic samples when real data is absent."""
         rng = np.random.default_rng(42)
         n_samples = {"train": 20, "val": 6, "test": 6}.get(self.split, 10)
-        samples: list[dict] = []
+        samples: list[dict[str, Any]] = []
         for i in range(n_samples):
             samples.append(
                 {
@@ -134,7 +138,7 @@ class ISBI2015Dataset(BaseDataset):
             )
         return samples
 
-    def __getitem__(self, idx: int) -> dict:
+    def __getitem__(self, idx: int) -> dict[str, Any]:
         sample = self._samples[idx]
         if sample.get("_synthetic"):
             rng = np.random.default_rng(idx)

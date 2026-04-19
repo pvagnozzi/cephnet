@@ -116,7 +116,7 @@ class Trainer:
         )
 
         heatmap_size = (
-            config.model.heatmap_size  # type: ignore[union-attr]
+            config.model.heatmap_size
             if isinstance(config.model, HeatmapModelConfig)
             else None
         )
@@ -272,7 +272,7 @@ class Trainer:
                 self.scaler.step(self.optimizer)
                 self.scaler.update()
             else:
-                loss.backward()
+                loss.backward()  # type: ignore[no-untyped-call]
                 torch.nn.utils.clip_grad_norm_(
                     self.model.parameters(), cfg_tr.gradient_clip_norm
                 )

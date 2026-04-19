@@ -29,7 +29,7 @@ docker compose `
     -f $ComposeFile `
     --project-directory $RepoRoot `
     run --rm trainer `
-    python scripts/python/verify_cross_dataset.py `
+    uv run python scripts/python/verify_cross_dataset.py `
     --config $Config `
     --verification-dataset $VerificationDataset `
     --verification-root $VerificationRoot `
