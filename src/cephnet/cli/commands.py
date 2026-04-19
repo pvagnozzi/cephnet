@@ -21,10 +21,17 @@ from cephnet.utils.seeding import seed_everything
 
 
 @click.command()
-@click.option("--config", "-c", required=True, type=click.Path(exists=True), help="Training config YAML")  # noqa: E501
+@click.option(
+    "--config", "-c", required=True, type=click.Path(exists=True), help="Training config YAML"
+)  # noqa: E501
 @click.option("--dataset", "-d", default=None, help="Override dataset name")
 @click.option("--force", is_flag=True, default=False, help="Overwrite existing dataset")
-@click.option("--synthetic", is_flag=True, default=False, help="Always generate synthetic data (skip download)")  # noqa: E501
+@click.option(
+    "--synthetic",
+    is_flag=True,
+    default=False,
+    help="Always generate synthetic data (skip download)",
+)  # noqa: E501
 @click.option("--n-train", default=80, show_default=True, help="Synthetic training samples")
 @click.option("--n-val", default=20, show_default=True, help="Synthetic validation samples")
 @click.option("--n-test", default=20, show_default=True, help="Synthetic test samples")
@@ -81,6 +88,7 @@ def prepare(
     ann = root / "annotations" / "landmarks.csv"
     if ann.exists():
         import pandas as pd
+
         df = pd.read_csv(ann)
         log.info("✅ Dataset ready — %d total samples in %s", len(df), root)
         splits = df["split"].value_counts().to_dict() if "split" in df.columns else {}
@@ -91,7 +99,9 @@ def prepare(
 
 
 @click.command()
-@click.option("--config", "-c", required=True, type=click.Path(exists=True), help="Training config YAML")  # noqa: E501
+@click.option(
+    "--config", "-c", required=True, type=click.Path(exists=True), help="Training config YAML"
+)  # noqa: E501
 @click.option("--resume", is_flag=True, default=False, help="Resume from last checkpoint")
 def train(config: str, resume: bool) -> None:
     """🚀 Train a landmark detection model."""
@@ -151,6 +161,7 @@ def train(config: str, resume: bool) -> None:
 
     # --- Post-training: ONNX export ---
     from cephnet.io.exporter import export_to_onnx
+
     img_size_tuple: tuple[int, int] = (cfg.dataset.image_size[0], cfg.dataset.image_size[1])
     try:
         if checkpointer is not None:
@@ -167,6 +178,7 @@ def train(config: str, resume: bool) -> None:
 
     # --- Post-training: HTML report with learning curve ---
     from cephnet.io.writers import ReportWriter
+
     report_dir = Path("/reports/metrics")
     writer = ReportWriter(report_dir)
     history = metrics_writer.get_history()
@@ -188,7 +200,9 @@ def train(config: str, resume: bool) -> None:
 
 
 @click.command()
-@click.option("--config", "-c", required=True, type=click.Path(exists=True), help="Training config YAML")  # noqa: E501
+@click.option(
+    "--config", "-c", required=True, type=click.Path(exists=True), help="Training config YAML"
+)  # noqa: E501
 @click.option("--checkpoint", default=None, help="Path to specific checkpoint file")
 def validate(config: str, checkpoint: str | None) -> None:
     """🧪 Validate a trained model on the test split."""
@@ -256,7 +270,9 @@ def validate(config: str, checkpoint: str | None) -> None:
 
 
 @click.command()
-@click.option("--config", "-c", required=True, type=click.Path(exists=True), help="Training config YAML")  # noqa: E501
+@click.option(
+    "--config", "-c", required=True, type=click.Path(exists=True), help="Training config YAML"
+)  # noqa: E501
 @click.option("--verification-dataset", "-v", default="aariz", show_default=True)
 @click.option("--verification-root", default="/data/processed/aariz", show_default=True)
 @click.option("--checkpoint", default=None, help="Path to specific checkpoint file")
@@ -282,7 +298,9 @@ def verify(
 
     img_size: tuple[int, int] = (cfg.dataset.image_size[0], cfg.dataset.image_size[1])
     ver_ds = get_dataset(
-        verification_dataset, Path(verification_root), "test",
+        verification_dataset,
+        Path(verification_root),
+        "test",
         transform=build_val_pipeline(img_size),
     )
     ver_loader = DataLoader(ver_ds, batch_size=cfg.training.batch_size, shuffle=False)

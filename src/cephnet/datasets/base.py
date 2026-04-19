@@ -82,7 +82,7 @@ class BaseDataset(Dataset[dict[str, Any]], abc.ABC):
         landmarks_t = torch.from_numpy(landmarks)
 
         return {
-            "image": image_t,          # (3, H, W)
+            "image": image_t,  # (3, H, W)
             "landmarks": landmarks_t,  # (N, 2) pixel coords in resized image
             "image_path": str(sample["image_path"]),
         }

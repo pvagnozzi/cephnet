@@ -116,9 +116,7 @@ class Trainer:
         )
 
         heatmap_size = (
-            config.model.heatmap_size
-            if isinstance(config.model, HeatmapModelConfig)
-            else None
+            config.model.heatmap_size if isinstance(config.model, HeatmapModelConfig) else None
         )
         self.validator = Validator(
             model=self.model,
@@ -266,16 +264,12 @@ class Trainer:
             if self.scaler is not None:
                 self.scaler.scale(loss).backward()
                 self.scaler.unscale_(self.optimizer)
-                torch.nn.utils.clip_grad_norm_(
-                    self.model.parameters(), cfg_tr.gradient_clip_norm
-                )
+                torch.nn.utils.clip_grad_norm_(self.model.parameters(), cfg_tr.gradient_clip_norm)
                 self.scaler.step(self.optimizer)
                 self.scaler.update()
             else:
                 loss.backward()  # type: ignore[no-untyped-call]
-                torch.nn.utils.clip_grad_norm_(
-                    self.model.parameters(), cfg_tr.gradient_clip_norm
-                )
+                torch.nn.utils.clip_grad_norm_(self.model.parameters(), cfg_tr.gradient_clip_norm)
                 self.optimizer.step()
 
             total_loss += loss.item()

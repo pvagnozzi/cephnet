@@ -76,8 +76,7 @@ class AarizDataset(BaseDataset):
         for _, row in df.iterrows():
             img_path = images_dir / f"{row['image_id']}.png"
             landmarks = [
-                [float(row[f"lm_{i}_x"]), float(row[f"lm_{i}_y"])]
-                for i in range(self.N_LANDMARKS)
+                [float(row[f"lm_{i}_x"]), float(row[f"lm_{i}_y"])] for i in range(self.N_LANDMARKS)
             ]
             all_samples.append(
                 {

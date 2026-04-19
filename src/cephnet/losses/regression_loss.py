@@ -55,9 +55,7 @@ class WingLoss(nn.Module):
         self.w = w
         self.epsilon = epsilon
         # Pre-compute the constant C so that the loss is continuous at |x| = w
-        self.C: float = (
-            w - w * torch.log(torch.tensor(1.0 + w / epsilon)).item()
-        )
+        self.C: float = w - w * torch.log(torch.tensor(1.0 + w / epsilon)).item()
 
     def forward(self, pred: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         """Compute Wing loss.

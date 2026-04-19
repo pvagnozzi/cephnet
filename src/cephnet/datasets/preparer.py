@@ -40,11 +40,25 @@ _AARIZ_SOURCES: list[dict[str, Any]] = [
 
 # Standard ISBI 2015 landmark names (19 landmarks)
 ISBI2015_LANDMARK_NAMES: list[str] = [
-    "sella", "nasion", "orbitale", "porion", "subspinale",
-    "supramentale", "pogonion", "menton", "gnathion", "gonion",
-    "incision_inferius", "incision_superius", "upper_lip", "lower_lip",
-    "subnasale", "soft_tissue_pogonion", "posterior_nasal_spine",
-    "anterior_nasal_spine", "articulare",
+    "sella",
+    "nasion",
+    "orbitale",
+    "porion",
+    "subspinale",
+    "supramentale",
+    "pogonion",
+    "menton",
+    "gnathion",
+    "gonion",
+    "incision_inferius",
+    "incision_superius",
+    "upper_lip",
+    "lower_lip",
+    "subnasale",
+    "soft_tissue_pogonion",
+    "posterior_nasal_spine",
+    "anterior_nasal_spine",
+    "articulare",
 ]
 
 # Standard Aariz landmark names (19 landmarks, same canonical set)
@@ -87,6 +101,7 @@ def _extract_zip(zip_path: Path, dest_dir: Path) -> bool:
 # ---------------------------------------------------------------------------
 # Minimal PNG writer (no external deps at prepare time)
 # ---------------------------------------------------------------------------
+
 
 def _write_png(path: Path, array: np.ndarray) -> None:
     """Write an 8-bit grayscale or RGB PNG to *path* without PIL/cv2."""
@@ -185,28 +200,31 @@ def _canonical_landmark_positions(
         (-0.10, -0.20),  # sella
         (-0.35, -0.38),  # nasion
         (-0.55, -0.10),  # orbitale
-        (0.65, -0.05),   # porion
-        (-0.48, 0.08),   # subspinale
-        (-0.42, 0.22),   # supramentale
-        (-0.52, 0.36),   # pogonion
-        (-0.18, 0.62),   # menton
-        (-0.38, 0.58),   # gnathion
-        (0.45, 0.45),    # gonion
-        (-0.38, 0.18),   # incision_inferius
-        (-0.36, 0.12),   # incision_superius
-        (-0.44, 0.00),   # upper_lip
-        (-0.44, 0.10),   # lower_lip
-        (-0.48, 0.00),   # subnasale
-        (-0.55, 0.38),   # soft_tissue_pogonion
-        (0.22, -0.05),   # posterior_nasal_spine
+        (0.65, -0.05),  # porion
+        (-0.48, 0.08),  # subspinale
+        (-0.42, 0.22),  # supramentale
+        (-0.52, 0.36),  # pogonion
+        (-0.18, 0.62),  # menton
+        (-0.38, 0.58),  # gnathion
+        (0.45, 0.45),  # gonion
+        (-0.38, 0.18),  # incision_inferius
+        (-0.36, 0.12),  # incision_superius
+        (-0.44, 0.00),  # upper_lip
+        (-0.44, 0.10),  # lower_lip
+        (-0.48, 0.00),  # subnasale
+        (-0.55, 0.38),  # soft_tissue_pogonion
+        (0.22, -0.05),  # posterior_nasal_spine
         (-0.38, -0.05),  # anterior_nasal_spine
-        (0.32, -0.15),   # articulare
+        (0.32, -0.15),  # articulare
     ]
 
-    pts = np.array([
-        [cx + dx * rx + rng.uniform(-8, 8), cy + dy * ry + rng.uniform(-8, 8)]
-        for dx, dy in relative
-    ], dtype=np.float32)
+    pts = np.array(
+        [
+            [cx + dx * rx + rng.uniform(-8, 8), cy + dy * ry + rng.uniform(-8, 8)]
+            for dx, dy in relative
+        ],
+        dtype=np.float32,
+    )
 
     # Clamp to valid range
     pts[:, 0] = np.clip(pts[:, 0], 20, width - 20)
@@ -313,7 +331,9 @@ class DatasetPreparer:
             zip_path = _try_download_zip(source["url"], self.raw_root)
             if zip_path is None:
                 continue
-            if _extract_zip(zip_path, self.raw_root) and self._reformat_downloaded(self.raw_root, image_size):  # noqa: E501
+            if _extract_zip(zip_path, self.raw_root) and self._reformat_downloaded(
+                self.raw_root, image_size
+            ):  # noqa: E501
                 downloaded = True
                 break
             logger.warning("⚠️  Could not use source '%s', trying next…", source["description"])

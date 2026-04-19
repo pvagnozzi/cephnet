@@ -161,9 +161,11 @@ class ReportWriter:
         # --- per-landmark table ---
         if per_landmark_mre is not None:
             n = len(per_landmark_mre)
-            names = landmark_names if landmark_names and len(landmark_names) == n else [
-                f"L{i + 1:02d}" for i in range(n)
-            ]
+            names = (
+                landmark_names
+                if landmark_names and len(landmark_names) == n
+                else [f"L{i + 1:02d}" for i in range(n)]
+            )
             lm_df = pd.DataFrame({"Landmark": names, "MRE (mm)": per_landmark_mre})
             lm_df = lm_df.sort_values("MRE (mm)")
             lm_html = lm_df.to_html(index=False, float_format="%.3f")  # type: ignore[call-overload]
